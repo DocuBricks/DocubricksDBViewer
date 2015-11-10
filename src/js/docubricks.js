@@ -2,22 +2,38 @@ var Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456
 
 var parsedBricks = []
 
-function recurseTree(xml, obj, pref) {
+function parseBrick(xml, obj, pref, par) {
+    // Recurse dependent bricks
     if($.inArray(obj.attr("id"), parsedBricks) == -1) {
         parsedBricks.push(obj.attr("id"));
+        var el = $("<li />")
+        var sublist = $("<ul/>")
+
+        // Do recursion
+        var subbed = 0;
         console.log(pref+" "+obj.find("name").text())
         obj.find("function").each(function() {
             if($(this).find("implementation").attr("type") == "brick") {
+                subbed = 1;
                 reffed = xml.find("brick#"+$(this).find("implementation").attr("id"))
-                recurseTree(xml, reffed, pref+"-")
+                parseBrick(xml, reffed, pref+"-", sublist)
             }
         })
+
+        // Create element
+        if(subbed) {
+            el.append($("<strong />").text(obj.find("name").text()))
+            el.append(sublist)
+        } else {
+            el.append($("<a />").text(obj.find("name").text()))
+        }
+        par.append(el)
     }
 }
 
 $(document).ready(function(){
     xml = $($.parseXML(Base64.decode(xmldata)))
     xml.find("brick").each(function(){
-        recurseTree(xml, $(this), "-")
+        parseBrick(xml, $(this), "-", $("#bricklist"))
     })
 })
