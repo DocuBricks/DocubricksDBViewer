@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ "$#" -ne 1 ]; then
+if [ "$#" -lt 1 ]; then
     echo "Usage:"$'\n\t'"$0 file [theme] > out.html"
     exit 1
 fi
@@ -11,33 +11,31 @@ if [ "$#" -ne 2 ]; then
 fi
 
 # first concat src files into one file
-out=$(
-    cat src/themes/$theme/header.html
+out=$(cat src/themes/$theme/header.html)
 
-    for f in src/themes/$theme/css/*; do
-        echo "<style type=\"text/css\">"
-        cat $f
-        echo "</style>"
-    done
-    for f in src/themes/$theme/js/*; do
-        echo "<script type=\"text/javascript\">"
-        cat $f
-        echo "</script>"
-    done
-    for f in src/js/*; do
-        echo "<script type=\"text/javascript\">"
-        cat $f
-        echo "</script>"
-    done
+for f in src/themes/$theme/css/*; do
+    out+="<style type=\"text/css\">"$'\n'
+    out+=$(cat $f)
+    out+="</style>"$'\n'
+done
 
-    cat src/themes/$theme/main.html
-)
+for f in src/themes/$theme/js/*; do
+    out+="<script type=\"text/javascript\">"$'\n'
+    out+=$(cat $f)
+    out+="</script>"$'\n'
+done
+
+for f in src/js/*; do
+    out+="<script type=\"text/javascript\">"$'\n'
+    out+=$(cat $f)
+    out+="</script>"$'\n'
+done
+
+out+=$(cat src/themes/$theme/main.html)
 
 # then add in actual documentation file
-out+=$(
-    echo -n "<!-- XMLDATA --><script type=\"text/javascript\">var xmldata = \""
-    cat $1 | base64 -w 0
-    echo -n "\"</script></body></html>"
-)
+out+="<!-- XMLDATA --><script type=\"text/javascript\">var xmldata = \""
+out+=$(cat $1 | base64 -w 0)
+out+="\"</script></body></html>"
 
-echo $out
+echo "$out"
