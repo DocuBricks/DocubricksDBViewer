@@ -1,7 +1,8 @@
 #!/bin/bash
 
 if [ "$#" -ne 1 ]; then
-    echo "Please tell me which documentation file to compile..."
+    echo "Usage:"$'\n\t'"$0 file [theme] > out.html"
+    exit 1
 fi
 theme=$2
 
