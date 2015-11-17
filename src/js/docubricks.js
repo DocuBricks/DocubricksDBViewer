@@ -5,7 +5,7 @@ var parsedBricks = []
 function parseBrick(xml, obj, par) {
     // Recurse dependent bricks
     if($.inArray(obj.attr("id"), parsedBricks) == -1) {
-        parsedBricks.push(obj.attr("id"));
+        parsedBricks.push(obj.attr("id"))
         var el = $("<li />")
         var sublist = $("<ul/>")
 
@@ -30,9 +30,34 @@ function parseBrick(xml, obj, par) {
     }
 }
 
+function renderBrick(brick, par) {
+    el = $("<div>")
+    el.append($("<h2 class='brickheader'>").text(brick.find("name").text()))
+    el.append($("<p class='brickabstract'>").text(brick.find("abstract").text()))
+    el.append($("<p class='brickdesc'>").text(brick.find("long_description").text()))
+
+    var steps = brick.find("step")
+    if(steps.size() > 0) {
+        var i = 1;
+        steps.each(function(){
+            el.append(renderMedia($(this).find("media"), $("<p>"))) // media
+            el.append($("<div>").append($("<strong>").text("Step "+i)).append($("<p>").html($(this).find("description").text().replace(/\n/g, "<br />")))) // description
+            i++;
+        })
+    }
+
+    par.append(el)
+}
+
+function renderMedia(media, par) {
+    // TODO
+}
+
 $(document).ready(function(){
     xml = $($.parseXML(Base64.decode(xmldata)))
     xml.find("brick").each(function(){
         parseBrick(xml, $(this), $("#bricklist"))
+        renderBrick($(this), $("#bricks"))
     })
+    document.title = xml.find("#"+parsedBricks[0]+" name").text()
 })
