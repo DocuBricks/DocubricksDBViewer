@@ -10,11 +10,7 @@ if [ "$#" -ne 2 ]; then
 fi
 
 # first concat src files into one file
-rm out.html 2> /dev/null
-
-touch out.html
-
-(
+out=$(
     cat src/themes/$theme/header.html
 
     for f in src/themes/$theme/css/*; do
@@ -34,11 +30,13 @@ touch out.html
     done
 
     cat src/themes/$theme/main.html
-) > out.html
+)
 
 # then add in actual documentation file
-(
+out+=$(
     echo -n "<!-- XMLDATA --><script type=\"text/javascript\">var xmldata = \""
     cat $1 | base64 -w 0
     echo -n "\"</script></body></html>"
-) >> out.html
+)
+
+echo $out
